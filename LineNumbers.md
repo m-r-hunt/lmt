@@ -143,7 +143,7 @@ instead of directly at line as before.
 
 ```go "Handle file line"
 if inBlock {
-	if line.text == "```\n" {
+	if strings.TrimSpace(line.text) == "```" {
 		<<<Handle block ending>>>
 		continue
 	}

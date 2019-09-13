@@ -251,7 +251,7 @@ The flow of handling a line will be something like:
 
 ```go "Handle file line"
 if inBlock {
-	if line == "```\n" {
+	if strings.TrimSpace(line == "```") {
 		<<<Handle block ending>>>
 		continue
 	} else {

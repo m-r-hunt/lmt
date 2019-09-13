@@ -4,16 +4,17 @@ package main
 import (
 //line README.md:149
 	"fmt"
-	"os"
 	"io"
+	"os"
 //line README.md:212
 	"bufio"
 //line README.md:385
 	"regexp"
 //line README.md:510
-	"strings"
-//line SubdirectoryFiles.md:35
 	"path/filepath"
+//line SubdirectoryFiles.md:35
+	"strings"
+
 //line README.md:69
 )
 
@@ -22,6 +23,7 @@ type File string
 type CodeBlock []CodeLine
 type BlockName string
 type language string
+
 //line LineNumbers.md:36
 type CodeLine struct {
 	text   string
@@ -29,47 +31,40 @@ type CodeLine struct {
 	lang   language
 	number int
 }
+
 //line LineNumbers.md:30
 
 var blocks map[BlockName]CodeBlock
 var files map[File]CodeBlock
-//line README.md:402
-var namedBlockRe *regexp.Regexp
-//line README.md:432
-var fileBlockRe *regexp.Regexp
-//line README.md:516
-var replaceRe *regexp.Regexp
-//line README.md:72
 
+//line README.md:402
+var namedBlockRe *regexp.Regexp //line README.md:432
+var fileBlockRe *regexp.Regexp //line README.md:516
+var replaceRe *regexp.Regexp //line README.md:72
 //line LineNumbers.md:118
 // Updates the blocks and files map for the markdown read from r.
-func ProcessFile(r io.Reader, inputfilename string) error {
-//line LineNumbers.md:82
+func ProcessFile(r io.Reader, inputfilename string) error { //line LineNumbers.md:82
 	scanner := bufio.NewReader(r)
 	var err error
-
 	var line CodeLine
 	line.file = File(inputfilename)
-
 	var inBlock, appending bool
 	var bname BlockName
 	var fname File
-	var block CodeBlock
-//line LineNumbers.md:99
+	var block CodeBlock //line LineNumbers.md:99
 	for {
 		line.number++
 		line.text, err = scanner.ReadString('\n')
 		switch err {
 		case io.EOF:
 			return nil
-		case nil:
-			// Nothing special
+		case nil: // Nothing special
 		default:
 			return err
 		}
 //line LineNumbers.md:145
 		if inBlock {
-			if line.text == "```\n" {
+			if strings.TrimSpace(line.text) == "```" {
 //line LineNumbers.md:56
 				inBlock = false
 				// Update the files map if it's a file.
@@ -110,6 +105,7 @@ func ProcessFile(r io.Reader, inputfilename string) error {
 	}
 //line LineNumbers.md:121
 }
+
 //line LineNumbers.md:190
 func parseHeader(line string) (File, BlockName, bool, language) {
 	line = strings.TrimSpace(line)
@@ -124,6 +120,7 @@ func parseHeader(line string) (File, BlockName, bool, language) {
 	return "", "", false, ""
 //line LineNumbers.md:193
 }
+
 //line WhitespacePreservation.md:34
 // Replace expands all macros in a CodeBlock and returns a CodeBlock with no
 // references to macros.
@@ -154,6 +151,7 @@ func (c CodeBlock) Replace(prefix string) (ret CodeBlock) {
 	return
 //line WhitespacePreservation.md:38
 }
+
 //line LineNumbers.md:277
 
 // Finalize extract the textual lines from CodeBlocks and (if needed) prepend a
@@ -180,6 +178,7 @@ func (c CodeBlock) Finalize() (ret string) {
 	}
 	return
 }
+
 //line README.md:74
 
 func main() {
