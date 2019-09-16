@@ -62,7 +62,7 @@ The above paragraph fully defines our spec. So, an example of a file code block
 might look like this:
 
 ###### file:main.go
-```go main.go
+```go
 package main
 
 import (
@@ -89,7 +89,7 @@ everything passed is a file.
 So an example of a named code block is like this:
 
 ###### main implementation
-```go "main implementation"
+```go
 files := os.Args
 for _, file := range files {
 	<<<process file>>>
@@ -106,12 +106,12 @@ to take that into account.
 Our maps, with some types defined for good measure:
 
 ###### global variables
-```go "global variables"
+```go
 <<<global block variables>>>
 ```
 
 ###### global block variables
-```go "global block variables"
+```go
 type File string
 type CodeBlock string
 type BlockName string
@@ -123,12 +123,12 @@ var files map[File]CodeBlock
 Our ProcessFile function:
 
 ###### other functions
-```go "other functions"
+```go
 <<<ProcessFile Declaration>>>
 ```
 
 ###### ProcessFile Declaration
-```go "ProcessFile Declaration"
+```go
 // Updates the blocks and files map for the markdown read from r.
 func ProcessFile(r io.Reader) error {
 	<<<process file implementation>>>
@@ -138,7 +138,7 @@ func ProcessFile(r io.Reader) error {
 And our new main:
 
 ###### main implementation
-```go "main implementation"
+```go
 <<<Initialize>>>
 
 // os.Args[0] is the command name, "lmt". We don't want to process it.
@@ -153,7 +153,7 @@ We used a few packages, so let's import them before declaring the blocks we
 just used.
 
 ###### main.go imports
-```go "main.go imports"
+```go
 "fmt"
 "os"
 "io"
@@ -162,7 +162,7 @@ just used.
 Initializing the maps is pretty straight forward:
 
 ###### Initialize
-```go "Initialize"
+```go
 // Initialize the maps
 blocks = make(map[BlockName]CodeBlock)
 files = make(map[File]CodeBlock)
@@ -172,7 +172,7 @@ As is opening the files, since we already declared the ProcessFile function and
 we just need to open the file to turn it into an `io.Reader`:
 
 ###### Open and process file
-```go "Open and process file"
+```go
 f, err := os.Open(file)
 if err != nil {
 	fmt.Fprintln(os.Stderr, "error: ", err)
@@ -198,7 +198,7 @@ has a `ReadString` method that will stop at a delimiter (in our case, '\n')
 We can do use this bufio Reader to iterate through lines like so:
 
 ###### process file implementation
-```go "process file implementation"
+```go
 scanner := bufio.NewReader(r)
 var err error
 var line string
@@ -220,7 +220,7 @@ for {
 We'll need to import the `bufio` package which we just used too:
 
 ###### main.go imports +=
-```go "main.go imports" +=
+```go
 "bufio"
 ```
 
@@ -233,7 +233,7 @@ How do we handle a line? We'll need to keep track of a little state:
 So let's add a little state to our implementation:
 
 ###### process file implementation
-```go "process file implementation"
+```go
 scanner := bufio.NewReader(r)
 var err error
 var line string
@@ -263,7 +263,7 @@ block.
 The flow of handling a line will be something like:
 
 ###### Handle file line
-```go "Handle file line"
+```go
 if inBlock {
 	if strings.TrimSpace(line == "```") {
 		<<<Handle block ending>>>
@@ -280,12 +280,12 @@ Handling a code block line is easy, we just add it to the `block` if it's not
 a block ending, and update the map/reset all the variables if it is.
 
 ###### Handle block line
-```go "Handle block line"
+```go
 block += CodeBlock(line)
 ```
 
 ###### Handle block ending
-```go "Handle block ending"
+```go
 // Update the files map if it's a file.
 if fname != "" {
 	if appending {
@@ -308,7 +308,7 @@ if bname != "" {
 ```
 
 ###### Reset block flags
-```go "Reset block flags"
+```go
 inBlock = false
 appending = false
 bname = ""
@@ -325,7 +325,7 @@ Otherwise, for triple backticks, we can just check the first three characters
 of the line (we don't care if there's a language specified or not).
 
 ###### Handle nonblock line
-```go "Handle nonblock line"
+```go
 if line == "" {
 	continue
 }
@@ -346,7 +346,7 @@ for the following information:
  - an append flag
 
 ###### Check block start
-```go "Check block start"
+```go
 if len(line) >= 3 && line[0:3] == "```" {
 	inBlock = true
 	<<<Check block header>>>
@@ -379,7 +379,7 @@ In fact, we'll put the whole thing into a function to make it easier to debug
 and write tests if we want to.
 
 ###### Check block header
-```go "Check block header"
+```go
 fname, bname, appending = parseHeader(line)
 // We're outside of a block, so just blindly reset it.
 block = ""
@@ -388,12 +388,12 @@ block = ""
 Then we need to define our parseHeader function:
 
 ###### other functions +=
-```go "other functions" +=
+```go
 <<<ParseHeader Declaration>>>
 ```
 
 ###### ParseHeader Declaration
-```go "ParseHeader Declaration"
+```go
 func parseHeader(line string) (File, BlockName, bool) {
 	line = strings.TrimSpace(line)
 	<<<parseHeader implementation>>>
@@ -404,12 +404,12 @@ Our implementation is going to use a regex for a namedBlock, and compare the
 line against it, so let's start by importing the regex package.
 
 ###### main.go imports +=
-```go "main.go imports" +=
+```go
 "regexp"
 ```
 
 ###### parseHeader implementation
-```go "parseHeader implementation"
+```go
 namedBlockRe := regexp.MustCompile("^([`]+\\s?)[\\w]*[\\s]*\"(.+)\"[\\s]*([+][=])?$")
 matches := namedBlockRe.FindStringSubmatch(line)
 if matches != nil {
@@ -423,24 +423,24 @@ There's no reason to constantly be re-compiling the namedBlockRe, we can just
 make it global and compile it once on initialization.
 
 ###### global variables +=
-```go "global variables" +=
+```go
 var namedBlockRe *regexp.Regexp
 ```
 
 ###### Initialize +=
-```go "Initialize" +=
+```go
 <<<Namedblock Regex>>>
 ```
 
 ###### Namedblock Regex
-```go "Namedblock Regex"
+```go
 namedBlockRe = regexp.MustCompile("^([`]+\\s?)[\\w]+[\\s]+\"(.+)\"[\\s]*([+][=])?$")
 ```
 
 Then our parse implementation without the MustCompile is:
 
 ###### parseHeader implementation
-```go "parseHeader implementation"
+```go
 matches := namedBlockRe.FindStringSubmatch(line)
 if matches != nil {
 	return "", BlockName(matches[2]), (matches[3] == "+=")
@@ -457,22 +457,22 @@ specification.
 This time, we'll just go straight to declaring the regex as a global.
 
 ###### global variables +=
-```go "global variables" +=
+```go
 var fileBlockRe *regexp.Regexp
 ```
 
 ###### Initialize +=
-```go "Initialize" +=
+```go
 <<<Fileblock Regex>>>
 ```
 
 ###### Fileblock Regex
-```go "Fileblock Regex"
+```go
 fileBlockRe = regexp.MustCompile("^([`]+\\s?)[\\w]+[\\s]+([\\w\\.\\-\\/]+)[\\s]*([+][=])?$")
 ```
 
 ###### Check filename header
-```go "Check filename header"
+```go
 matches = fileBlockRe.FindStringSubmatch(line)
 if matches != nil {
 	return File(matches[2]), "", (matches[3] == "+=")
@@ -490,7 +490,7 @@ Let's start by just ranging through our files map, and assuming there's a method
 on code block which does the replacing.
 
 ###### Output files
-```go "Output files"
+```go
 for filename, codeblock := range files {
 	f, err := os.Create(string(filename))
 	if err != nil {
@@ -511,12 +511,12 @@ to determine if it's a macro line, and we can use a scanner similar to our
 markdown line scanner to our previous one,
 
 ###### other functions +=
-```go "other functions" +=
+```go
 <<<Replace Declaration>>>
 ```
 
 ###### Replace Declaration
-```go "Replace Declaration"
+```go
 // Replace expands all macros in a CodeBlock and returns a CodeBlock with no
 // references to macros.
 func (c CodeBlock) Replace() (ret CodeBlock) {
@@ -525,7 +525,7 @@ func (c CodeBlock) Replace() (ret CodeBlock) {
 ```
 
 ###### Replace codeblock implementation
-```go "Replace codeblock implementation"
+```go
 scanner := bufio.NewReader(strings.NewReader(string(c)))
 
 for {
@@ -543,24 +543,24 @@ We'll have to import the strings package we just used to convert our CodeBlock
 into an io.Reader:
 
 ###### main.go imports +=
-```go "main.go imports" +=
+```go
 "strings"
 ```
 
 Now, our replacement regex should be fairly simple:
 
 ###### global variables +=
-```go "global variables" +=
+```go
 var replaceRe *regexp.Regexp
 ```
 
 ###### Initialize +=
-```go "Initialize" +=
+```go
 <<<Replace Regex>>>
 ```
 
 ###### Replace Regex
-```go "Replace Regex"
+```go
 replaceRe = regexp.MustCompile(`^[\s]*<<<(.+)>>>[\s]*$`)
 ```
 
@@ -570,7 +570,7 @@ blocks and include the replaced CodeBlock from there. (If it doesn't exist,
 we'll add the line unexpanded and print a warning.)
 
 ###### Handle replace line
-```go "Handle replace line"
+```go
 matches := replaceRe.FindStringSubmatch(line)
 if matches == nil {
 	ret += CodeBlock(line)
@@ -583,7 +583,7 @@ Looking up a replacement is fairly straight forward, since we have a map by the
 time this is called.
 
 ###### Lookup replacement and add to ret
-```go "Lookup replacement and add to ret"
+```go
 bname := BlockName(matches[1])
 if val, ok := blocks[bname]; ok {
 	ret += val.Replace()

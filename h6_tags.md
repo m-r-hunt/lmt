@@ -1,5 +1,5 @@
 ###### Handle nonblock line
-```go "Handle nonblock line"
+```go
 if line.text == "" {
 	continue
 }
@@ -15,7 +15,7 @@ case '#':
 ```
 
 ###### Check block start
-```go "Check block start"
+```go
 if len(line.text) >= 3 && (line.text[0:3] == "```") {
 	inBlock = true
 	// We were outside of a block, so just blindly reset it.
@@ -28,12 +28,12 @@ if len(line.text) >= 3 && (line.text[0:3] == "```") {
 ```
 
 ###### Check block header
-```go "Check block header"
+```go
 fname, bname, appending = parseHeader(line.text)
 ```
 
 ###### ParseHeader Declaration
-```go "ParseHeader Declaration"
+```go
 func parseHeader(line string) (File, BlockName, bool) {
 	line = strings.TrimSpace(line)
 	<<<parseHeader implementation>>>
@@ -41,17 +41,17 @@ func parseHeader(line string) (File, BlockName, bool) {
 ```
 
 ###### Namedblock Regex
-```go "Namedblock Regex"
+```go
 namedBlockRe = regexp.MustCompile("^###### ([^+=]+)(\\s+[+][=])?$")
 ```
 
 ###### Fileblock Regex
-```go "Fileblock Regex"
+```go
 fileBlockRe = regexp.MustCompile("^###### file:([\\w\\.\\-\\/]+)(\\s+[+][=])?$")
 ```
 
 ###### parseHeader implementation
-```go "parseHeader implementation"
+```go
 var matches []string
 if matches = fileBlockRe.FindStringSubmatch(line); matches != nil {
 	return File(matches[1]), "", (strings.TrimSpace(matches[2]) == "+=")

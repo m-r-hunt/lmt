@@ -8,7 +8,7 @@ To do that, we'll have to group the whitespace token in the Replace Regex so
 that we know the indentation level to preserve.
 
 ###### Replace Regex
-```go "Replace Regex"
+```go
 replaceRe = regexp.MustCompile(`^([\s]*)<<<(.+)>>>[\s]*$`)
 ```
 
@@ -20,7 +20,7 @@ just found to Replace() to use as a prefix (in addition to the current prefix.)
 the index to keep our changes simple.)
 
 ###### Lookup replacement and add to ret
-```go "Lookup replacement and add to ret"
+```go
 bname := BlockName(matches[2])
 if val, ok := blocks[bname]; ok {
 	ret += val.Replace(prefix + matches[1])
@@ -33,7 +33,7 @@ if val, ok := blocks[bname]; ok {
 We'll have to update our function signature too.
 
 ###### Replace Declaration
-```go "Replace Declaration"
+```go
 // Replace expands all macros in a CodeBlock and returns a CodeBlock with no
 // references to macros.
 func (c CodeBlock) Replace(prefix string) (ret CodeBlock) {
@@ -45,7 +45,7 @@ and make sure we pass the empty string as the starting prefix when outputting
 a new file.
 
 ###### Output files
-```go "Output files"
+```go
 for filename, codeblock := range files {
 	f, err := os.Create(string(filename))
 	if err != nil {
@@ -64,7 +64,7 @@ that we just passed, so that the lines get indented. But only if the line isn't
 empty.
 
 ###### Handle replace line
-```go "Handle replace line"
+```go
 matches := replaceRe.FindStringSubmatch(line)
 if matches == nil {
 	if line != "\n" {

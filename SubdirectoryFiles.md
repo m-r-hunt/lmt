@@ -12,7 +12,7 @@ returns ".", not "" for empty paths) call `os.MkdirAll` on it in order to create
 the directory before creating the file.
 
 ###### Output files
-```go "Output files"
+```go
 for filename, codeblock := range files {
 	if dir := filepath.Dir(string(filename)); dir != "." {
 		if err := os.MkdirAll(dir, 0775); err != nil {
@@ -33,7 +33,7 @@ for filename, codeblock := range files {
 ```
 
 ###### main.go imports +=
-```go "main.go imports" +=
+```go
 "path/filepath"
 ```
 
