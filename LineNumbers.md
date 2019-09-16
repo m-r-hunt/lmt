@@ -21,6 +21,7 @@ We need to change CodeBlock to a slice of CodeLines. For every line we don't
 only record the text but the name of the source file, the linenumber and the
 language (for different line directives).
 
+###### global block variables
 ```go "global block variables"
 type File string
 type CodeBlock []CodeLine
@@ -32,6 +33,7 @@ var blocks map[BlockName]CodeBlock
 var files map[File]CodeBlock
 ```
 
+###### Codeline type definition
 ```go "Codeline type definition"
 type CodeLine struct {
 	text   string
@@ -44,6 +46,7 @@ type CodeLine struct {
 Handling a block line is now not as simple as just joining two strings. We
 start appending CodeLines into CodeBlocks.
 
+###### Handle block line
 ```go "Handle block line"
 block = append(block, line)
 ```
@@ -52,6 +55,7 @@ This cascades. The CodeBlocks in the maps files and blocks can't be joined, but
 have to be appended. We take a few moments to clean up the emptying of metadata
 per line, i.e. if a block is ending we can unset inBlock.
 
+###### Handle block ending
 ```go "Handle block ending"
 inBlock = false
 // Update the files map if it's a file.
@@ -78,6 +82,7 @@ implementation of the file processing. We also should to save the filename
 directly when opening the file. To simplify we break out our variables from the
 implementation of file processing.
 
+###### process file implementation variables
 ```go "process file implementation variables"
 scanner := bufio.NewReader(r)
 var err error
@@ -94,6 +99,7 @@ var block CodeBlock
 When processing our files we need to increment the file line counter for every
 line read.
 
+###### process file implementation
 ```go "process file implementation"
 <<<process file implementation variables>>>
 for {
@@ -114,6 +120,7 @@ for {
 Sadly, there is no indicator from the Reader about which file we are reading so
 we send it along with ProcessFile.
 
+###### ProcessFile Declaration
 ```go "ProcessFile Declaration"
 // Updates the blocks and files map for the markdown read from r.
 func ProcessFile(r io.Reader, inputfilename string) error {
@@ -123,6 +130,7 @@ func ProcessFile(r io.Reader, inputfilename string) error {
 
 Of course we need to call ProcessFile with the filename too.
 
+###### Open and process file
 ```go "Open and process file"
 f, err := os.Open(file)
 if err != nil {
@@ -141,6 +149,7 @@ f.Close()
 When testing if the line starts with '```' we need to look at line.text,
 instead of directly at line as before.
 
+###### Handle file line
 ```go "Handle file line"
 if inBlock {
 	if strings.TrimSpace(line.text) == "```" {
@@ -157,6 +166,7 @@ Handle nonblock line is actually longer than needed.  We only need to check if
 it is a block start now, since markdown headers aren't handled as code block
 descriptors. Lets clean it up.
 
+###### Handle nonblock line
 ```go "Handle nonblock line"
 <<<Check block start>>>
 ```
@@ -166,6 +176,7 @@ long enough to hold them). If we are in the start of a new block, we reset
 block (the variable we save every new block in), set inBlock to true and then
 check the headers.
 
+###### Check block start
 ```go "Check block start"
 if len(line.text) >= 3 && (line.text[0:3] == "```") {
 	inBlock = true
@@ -177,6 +188,7 @@ if len(line.text) >= 3 && (line.text[0:3] == "```") {
 
 We parse the header for a new variable: the language of the codeblock.
 
+###### Check block header
 ```go "Check block header"
 fname, bname, appending, line.lang = parseHeader(line.text)
 ```
@@ -186,6 +198,7 @@ noisy, since both declaration and implementation changes. Worst part is that
 the regexp changes too. We still probably should try looking at naming the
 variables in the regexp.
 
+###### ParseHeader Declaration
 ```go "ParseHeader Declaration"
 func parseHeader(line string) (File, BlockName, bool, language) {
 	line = strings.TrimSpace(line)
@@ -193,6 +206,7 @@ func parseHeader(line string) (File, BlockName, bool, language) {
 }
 ```
 
+###### parseHeader implementation
 ```go "parseHeader implementation"
 var matches []string
 if matches = namedBlockRe.FindStringSubmatch(line); matches != nil {
@@ -204,10 +218,12 @@ if matches = fileBlockRe.FindStringSubmatch(line); matches != nil {
 return "", "", false, ""
 ```
 
+###### Namedblock Regex
 ```go "Namedblock Regex"
 namedBlockRe = regexp.MustCompile("^`{3,}\\s?(\\w*)\\s*\"(.+)\"\\s*([+][=])?$")
 ```
 
+###### Fileblock Regex
 ```go "Fileblock Regex"
 fileBlockRe = regexp.MustCompile("^`{3,}\\s?(\\w+)\\s+([\\w\\.\\-\\/]+)\\s*([+][=])?$")
 ```
@@ -216,6 +232,7 @@ The (actual) replacement in Replace also joins strings, we need to append to
 ret instead. The returned codeblock from the map blocks are replaced with the
 new prefix and "expanded" (...) before appended.
 
+###### Lookup replacement and add to ret
 ```go "Lookup replacement and add to ret"
 bname := BlockName(matches[2])
 if val, ok := blocks[bname]; ok {
@@ -230,6 +247,7 @@ Even lines which aren't replaced need to be appended instead of joining lines.
 While we are at it let's cleanup empty lines when passing through (they should
 not have prefix).
 
+###### Handle replace line
 ```go "Handle replace line"
 matches := replaceRe.FindStringSubmatch(line)
 if matches == nil {
@@ -247,6 +265,7 @@ reading line by line from c (a CodeBlock, earlier a long string with newlines),
 we're now able to use range. The string `line` is still analyzed, "de-macro-ed"
 and prefixed.
 
+###### Replace codeblock implementation
 ```go "Replace codeblock implementation"
 var line string
 for _, v := range c {
@@ -260,6 +279,7 @@ We need to use all the information we gathered, lets add a "Finalize"-function
 which handles CodeLines and outputs the final strings with the line-directives
 we been working for.
 
+###### other functions +=
 ```go "other functions" +=
 <<<Finalize Declaration>>>
 ```
@@ -273,6 +293,7 @@ interject a "line directive". We know of two variants of these: Go and the C
 variant. Lastly we save state, so we have something to compare to on the next
 line.
 
+###### Finalize Declaration
 ```go "Finalize Declaration"
 
 // Finalize extract the textual lines from CodeBlocks and (if needed) prepend a
@@ -304,6 +325,7 @@ func (c CodeBlock) Finalize() (ret string) {
 And finally, lets use our Finalize on the Replace-d codeblock, right before we
 print it out in the file.
 
+###### Output files
 ```go "Output files"
 for filename, codeblock := range files {
 	if dir := filepath.Dir(string(filename)); dir != "." {
