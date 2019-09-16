@@ -207,7 +207,7 @@ func main() {
 //line h6_tags.md:45
 	namedBlockRe = regexp.MustCompile("^###### ([^+=]+)(\\s+[+][=])?$")
 //line h6_tags.md:50
-	fileBlockRe = regexp.MustCompile("^###### f:([\\w\\.\\-\\/]+)(\\s+[+][=])?$")
+	fileBlockRe = regexp.MustCompile("^###### file:([\\w\\.\\-\\/]+)(\\s+[+][=])?$")
 //line WhitespacePreservation.md:12
 	replaceRe = regexp.MustCompile(`^([\s]*)<<<(.+)>>>[\s]*$`)
 //line README.md:143
