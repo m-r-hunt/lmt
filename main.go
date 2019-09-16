@@ -1,20 +1,20 @@
-//line README.md:66
+//line README_orig.md:66
 package main
 
 import (
-//line README.md:157
+//line README_orig.md:157
 	"fmt"
 	"os"
 	"io"
-//line README.md:224
+//line README_orig.md:224
 	"bufio"
-//line README.md:408
+//line README_orig.md:408
 	"regexp"
-//line README.md:547
+//line README_orig.md:547
 	"strings"
 //line SubdirectoryFiles.md:37
 	"path/filepath"
-//line README.md:70
+//line README_orig.md:70
 )
 
 //line LineNumbers.md:26
@@ -33,13 +33,13 @@ type CodeLine struct {
 
 var blocks map[BlockName]CodeBlock
 var files map[File]CodeBlock
-//line README.md:427
+//line README_orig.md:427
 var namedBlockRe *regexp.Regexp
-//line README.md:461
+//line README_orig.md:461
 var fileBlockRe *regexp.Regexp
-//line README.md:554
+//line README_orig.md:554
 var replaceRe *regexp.Regexp
-//line README.md:73
+//line README_orig.md:73
 
 //line LineNumbers.md:125
 // Updates the blocks and files map for the markdown read from r.
@@ -197,10 +197,10 @@ func (c CodeBlock) Finalize() (ret string) {
 	}
 	return
 }
-//line README.md:75
+//line README_orig.md:75
 
 func main() {
-//line README.md:166
+//line README_orig.md:166
 	// Initialize the maps
 	blocks = make(map[BlockName]CodeBlock)
 	files = make(map[File]CodeBlock)
@@ -210,7 +210,7 @@ func main() {
 	fileBlockRe = regexp.MustCompile("^###### file:([\\w\\.\\-\\/]+)(\\s+[+][=])?$")
 //line WhitespacePreservation.md:12
 	replaceRe = regexp.MustCompile(`^([\s]*)<<<(.+)>>>[\s]*$`)
-//line README.md:143
+//line README_orig.md:143
 	
 	// os.Args[0] is the command name, "lmt". We don't want to process it.
 	for _, file := range os.Args[1:] {
@@ -227,7 +227,7 @@ func main() {
 		// Don't defer since we're in a loop, we don't want to wait until the function
 		// exits.
 		f.Close()
-//line README.md:147
+//line README_orig.md:147
 	
 	}
 //line LineNumbers.md:330
@@ -247,5 +247,5 @@ func main() {
 		// We don't defer this so that it'll get closed before the loop finishes.
 		f.Close()
 	}
-//line README.md:78
+//line README_orig.md:78
 }
