@@ -47,7 +47,7 @@ namedBlockRe = regexp.MustCompile("^###### ([^+=]+)(\\s+[+][=])?$")
 
 ###### Fileblock Regex
 ```go "Fileblock Regex"
-fileBlockRe = regexp.MustCompile("^###### f:([\\w\\.\\-\\/]+)(\\s+[+][=])?$")
+fileBlockRe = regexp.MustCompile("^###### file:([\\w\\.\\-\\/]+)(\\s+[+][=])?$")
 ```
 
 ###### parseHeader implementation

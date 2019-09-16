@@ -61,7 +61,7 @@ language.
 The above paragraph fully defines our spec. So, an example of a file code block
 might look like this:
 
-###### f:main.go
+###### file:main.go
 ```go main.go
 package main
 
